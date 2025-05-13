@@ -1,103 +1,110 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useRef } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [uploadedImage1, setUploadedImage1] = useState(null); // 1枚目の画像（顔画像）
+  const [uploadedImage2, setUploadedImage2] = useState(null); // 2枚目の画像（モーダルで表示する画像）
+  const [showPopup, setShowPopup] = useState(false); // モーダル表示状態
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // 画像1のアップロード
+  const handleImageUpload1 = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedImage1(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 画像2のアップロード
+  const handleImageUpload2 = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedImage2(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 顔画像をクリックしたときにモーダルを表示
+  const handleImageClick = () => {
+    setShowPopup(true);
+  };
+
+  // モーダルを閉じる
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
+  return (
+    <div className="relative w-full h-screen overflow-hidden bg-gray-100">
+      {/* 背景画像 */}
+      <img
+        src="/ramen_shop.png"
+        alt="ラーメン屋背景"
+        className="absolute top-0 left-0 w-full h-full object-contain z-0"
+      />
+
+      {/* 店主画像 */}
+      <img
+        src="/ramen_tenshu.png"
+        alt="店主画像"
+        className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-10 w-full max-w-[300px] h-auto"
+      />
+
+      {/* 1枚目のアップロードされた顔画像 */}
+      {uploadedImage1 && (
+        <img
+          src={uploadedImage1}
+          alt="顔画像"
+          className="absolute z-20"
+          style={{
+            top: '78%', // 顔の位置を調整
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+          }}
+          onClick={handleImageClick} // 顔画像クリックでモーダル表示
+        />
+      )}
+
+      {/* 2枚目のアップロード画像（モーダルで表示） */}
+      {/* ファイルアップロードUI */}
+      <div className="absolute top-4 left-4 z-30 bg-white p-4 rounded shadow">
+        <label className="text-sm font-medium">顔画像をアップロード:</label>
+        <input type="file" accept="image/*" onChange={handleImageUpload1} className="mt-2" />
+      </div>
+
+      <div className="absolute top-16 left-4 z-30 bg-white p-4 rounded shadow">
+        <label className="text-sm font-medium">モーダル画像をアップロード:</label>
+        <input type="file" accept="image/*" onChange={handleImageUpload2} className="mt-2" />
+      </div>
+
+      {/* モーダル表示 */}
+      {showPopup && uploadedImage2 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold">Score</h2>
+            <img
+              src={uploadedImage2}
+              alt="モーダル画像"
+              className="mt-4 w-64 h-64 object-contain"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button
+              onClick={closePopup}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
